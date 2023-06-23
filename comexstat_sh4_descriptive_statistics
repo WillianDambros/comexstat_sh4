@@ -1,22 +1,10 @@
-# destino da pasta para os arquivos (escolha)
+# comexstat_sh4 comércio exterior por municípios #
 
-"Z:/POWER BI/" |> setwd()
+setwd("Z:/rstudio/comexstat/comexstat_sh4")
 
-# gerando pasta
-nome_pasta <- "COMEXSTAT"
+# loop to download files
 
-dir.create(paste0(getwd(),"/", nome_pasta))
-setwd(paste0(getwd(),"/", nome_pasta))
-
-# gerando pasta 
-nome_pasta_ncm <- "COMEXSTAT_SH4"
-
-dir.create(paste0(getwd(),"/", nome_pasta_ncm))
-setwd(paste0(getwd(),"/", nome_pasta_ncm))
-
-# criando loop para download de arquivo
-
-anos <- 2020:2022
+anos <- 2019:2023
 EXP <- vector(mode = 'list', length = length(anos))
 IMP <- vector(mode = 'list', length = length(anos))
 
@@ -35,7 +23,7 @@ for(i in seq_along(anos)){
   IMP[[i]] <- readr::read_csv2(link_file_imp)
 }
 
-# tomando medidas para unificar todos os dados
+# unifying data
 
 EXP <-
   EXP |> dplyr::bind_rows() |>
@@ -56,9 +44,6 @@ comercio_exterior_sh4 <-
   dplyr::mutate(competencia = lubridate::dmy(competencia)) |>
   dplyr::rename(CO_SH4 = SH4, SG_UF = SG_UF_MUN, CO_MUN_GEO = CO_MUN)
 
-comercio_exterior_sh4 |> dplyr::glimpse()
-
-                              #### até aqui deu certo ##################
 # downloading and applying decoder 
 
 link_decodificador <-
@@ -74,7 +59,6 @@ nomes_atraduzir <- readxl::excel_sheets("decodificador_comexstat.xlsx")
 lista_tradutor <- vector(mode = 'list',
                          length = length(nomes_atraduzir)-1)
 
-###
 
 for(l in seq_along(lista_tradutor)){
   lista_tradutor[[l]] <-
@@ -88,7 +72,7 @@ for(l in seq_along(lista_tradutor)){
     )
 }
 
-# tirando os nomes comuns necessarios para decodificar
+# finding common names to decode
 
 nomes_atraduzir <- vector(mode = 'list',
                           length = length(lista_tradutor)) 
@@ -120,7 +104,7 @@ for(l in seq_along(lista_tradutor)){
 compilado_traduzido <-
   compilado_traduzido |> purrr::list_cbind()
 
-# Unifying with decode part
+# Unifying main file with decode part
 
 comercio_exterior_sh4 <- comercio_exterior_sh4 |>
   dplyr::bind_cols(compilado_traduzido)
