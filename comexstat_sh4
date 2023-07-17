@@ -4,7 +4,8 @@ setwd("Z:/rstudio/comexstat/comexstat_sh4")
 
 # loop to download files
 
-anos <- 2019:2023
+anos <- as.integer(lubridate::year(lubridate::today())-4):
+  as.integer(lubridate::year(lubridate::today()))
 EXP <- vector(mode = 'list', length = length(anos))
 IMP <- vector(mode = 'list', length = length(anos))
 
